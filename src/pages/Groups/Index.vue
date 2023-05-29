@@ -22,7 +22,7 @@
                         placeholder="How long should be break" type="number"></base-input>
                 </div>
                 <div class="col">
-                    <base-input v-model="data.posts_left" label="Posts Left" value="0" type="number" disabled></base-input>
+                    <base-input v-model="data.posts_left" label="Posts Left" type="number" disabled></base-input>
                 </div>
             </div>
             <div v-if="!isFormDisabled" class="row">
@@ -33,7 +33,7 @@
                 </div>
                 <div v-if="['view', 'edit'].includes(state)" class="col">
                     <label class="form-label">Last Time</label>
-                    <base-input base-type="text" disabled :value="data.last_time"></base-input>
+                    <DatePicker style="display: block; width: 100%;" input-class="form-control" v-model="data.last_time" :default-value="new Date()" type="datetime"></DatePicker>
                 </div>
             </div>
             <div class="d-flex mt-3" style="gap: 1rem;">
@@ -99,12 +99,15 @@ import 'vue2-timepicker/dist/VueTimepicker.css';
 import Success from './NotificationTemplates/Success.vue';
 import BaseTable from '../../components/BaseTable.vue';
 import LinksModal from "../../components/Groups/LinksModal.vue";
+import DatePicker from 'vue2-datepicker';
+import 'vue2-datepicker/index.css';
 
 
 export default {
     name: "group-detailed",
     components: {
         VueTimepicker,
+        DatePicker,
         BaseTable,
         LinksModal
     },
@@ -145,7 +148,6 @@ export default {
     methods: {
         submitForm() {
 
-            this.data.last_time = 0;
             if (this.state === "edit") {
                 axios.put(`${process.env.VUE_APP_BASE_API_URL}/channels/${this.data.id}`, this.data, {
                     headers: {
@@ -200,6 +202,7 @@ export default {
                     Authorization: localStorage.getItem("auth_token")
                 }
             }).then(res => {
+                res.data.last_time = new Date(res.data.last_time);
                 this.data = res.data;
 
             }).catch(() => {
@@ -298,5 +301,22 @@ export default {
 
 .form-timepicker-group li {
     color: white !important;
+}
+
+.mx-datepicker-body, .mx-time {
+    background-color: #2b3553 !important;
+}
+.mx-datepicker-body * {
+    color: white !important;
+}
+.mx-datepicker-body .cell:hover, .mx-time-item:hover {
+    background: linear-gradient(0deg, #389466 0%, #42b883 100%);
+}
+.mx-icon-calendar {
+    color: white!important;
+}
+
+.mx-icon-clear:hover {
+    color: #42b883!important;
 }
 </style>
