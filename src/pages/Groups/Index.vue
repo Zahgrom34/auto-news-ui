@@ -36,6 +36,20 @@
                     <DatePicker style="display: block; width: 100%;" input-class="form-control" v-model="data.last_time" :default-value="new Date()" type="datetime"></DatePicker>
                 </div>
             </div>
+
+            <div class="row mt-3">
+                <div class="col">
+                    <label for="mainprompt">Main Prompt</label>
+                    <textarea class="form-control" id="mainprompt" v-model="data.main_prompt" :disabled="isFormDisabled"
+                        placeholder="Main Prompt for text GPT format" type="text"></textarea>
+                </div>
+                <div class="col">
+                    <label for="mergeprompt">Merge Prompt</label>
+                    <textarea class="form-control" id="mergeprompt" v-model="data.merge_prompt" :disabled="isFormDisabled"
+                        placeholder="Merge Prompt for text GPT format" type="text"></textarea>
+                </div>
+            </div>
+
             <div class="d-flex mt-3" style="gap: 1rem;">
                 <template v-if="['new', 'edit'].includes(state)">
                     <base-button size="sm" type="success" @click="submitForm()">Submit</base-button>
@@ -45,6 +59,7 @@
                     <base-button @click="$router.push('/groups')" size="sm" type="secondary">Go Back</base-button>
                 </template>
             </div>
+            
         </card>
 
         <card v-if="this.state !== 'new'" class="links-card">

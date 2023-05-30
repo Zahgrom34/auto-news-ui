@@ -7,6 +7,7 @@
                     :data="channel" @channelSelected="channelSelectOptions"></ListItem>
 
             </div>
+            <base-button type="success" @click="$router.push("/group/new")">Add new group</base-button>
         </card>
         <ActionsModal @delete="deleteChannel()" :data="selectedChannel" v-model="actionsModalIsActive">
             <template #title>
