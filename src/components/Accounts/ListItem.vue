@@ -51,7 +51,7 @@ export default {
   methods: {
     async deleteAccount() {
       try {
-        const response = await axios.delete(`http://localhost:8000/delete_session/${this.id}`, {
+        const response = await axios.delete(`${process.env.VUE_APP_BASE_API_URL}/delete_session/${this.id}`, {
             headers: {
                 Authorization: localStorage.getItem("auth_token")
             }

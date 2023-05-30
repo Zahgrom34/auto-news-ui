@@ -66,7 +66,7 @@ export default {
         async submitForm() {
             if (this.code_retrieval_state) {
                 try {
-                    const url = `http://localhost:8000/auth_session/?session_id=${this.session_name}&hash_code=${this.hash_code}&code=${this.code_received}`;
+                    const url = `${process.env.VUE_APP_BASE_API_URL}/auth_session/?session_id=${this.session_name}&hash_code=${this.hash_code}&code=${this.code_received}`;
                     const response = await axios.post(url, {
                         headers: {
                             Authorization: localStorage.getItem("auth_token")
@@ -87,7 +87,7 @@ export default {
                 this.code_received = null
             } else {
                 try {
-                    const response = await axios.post(`http://localhost:8000/accounts`, this.form, {
+                    const response = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/accounts`, this.form, {
                         headers: {
                             Authorization: localStorage.getItem("auth_token")
                         }
@@ -96,7 +96,7 @@ export default {
                     this.code_retrieval_state = true;
 
                     // Call /create_session with session_id
-                    const sessionIdResponse = await axios.post(`http://localhost:8000/create_session`, this.id, {
+                    const sessionIdResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/create_session`, this.id, {
                         headers: {
                             Authorization: localStorage.getItem("auth_token")
                         }
