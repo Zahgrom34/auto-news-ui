@@ -42,11 +42,11 @@ const routes = [
         name: "Create New Group",
         component: GroupCurrent,
       },
-      {
-        path: "settings",
-        name: "Settings",
-        component: Settings
-      },
+      // {
+      //   path: "settings",
+      //   name: "Settings",
+      //   component: Settings
+      // },
       {
         path: "websites",
         name: "Websites List",
@@ -58,7 +58,7 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login,
-    
+
   },
   { path: "*", component: NotFound },
 ];
