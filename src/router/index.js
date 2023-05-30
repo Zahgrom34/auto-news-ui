@@ -18,14 +18,11 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     return isAuthenticated().then(() => {
-        console.log("Then is executed and working");
         if (to.path === "/login") {
-            console.log(to.path);
             next("/dashboard");
         }
         return next();
     }).catch(() => {
-        console.log("Catch is executed and working");
         if (localStorage.getItem("auth_token")) {
             localStorage.removeItem("auth_token");
         }
