@@ -96,7 +96,7 @@ export default {
                     this.code_retrieval_state = true;
 
                     // Call /create_session with session_id
-                    const sessionIdResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/create_session`, this.id, {
+                    const sessionIdResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/create_session?session_id=${this.session_name}`, null, {
                         headers: {
                             Authorization: localStorage.getItem("auth_token")
                         }
