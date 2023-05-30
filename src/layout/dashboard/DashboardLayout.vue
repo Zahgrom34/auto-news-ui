@@ -6,7 +6,6 @@
         <sidebar-link to="/groups" :name="$t('groups.title')" icon="tim-icons icon-atom"/>
         <sidebar-link to="/accounts" :name="$t('accounts.title')" icon="tim-icons icon-badge"/>
         <sidebar-link to="/websites" :name="$t('websites.title')" icon="tim-icons icon-bullet-list-67"/>
-        <sidebar-link to="/settings" :name="$t('settings.title')" icon="tim-icons icon-settings"/>
       </template>
     </side-bar>
     <div class="main-panel">
