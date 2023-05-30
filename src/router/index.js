@@ -17,17 +17,20 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    isAuthenticated().then(() => {
-        if (from.path === "/login") {
-            return next({ path: "/dashboard" });
+    return isAuthenticated().then(() => {
+        if (to.path === "/login") {
+            next("/dashboard");
         }
         return next();
     }).catch(() => {
-        if (from.path !== "/login") {
+        if (localStorage.getItem("auth_token")) {
+            localStorage.removeItem("auth_token");
+        }
+        if (to.path !== "/login") {
             return next({ path: "/login" });
         }
     });
-    return next();
+
 })
 
 export default router;
