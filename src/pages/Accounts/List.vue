@@ -50,13 +50,6 @@ export default {
                         active: item.__data__.id === mainUserId,
                     };
 
-                    const avatarResponse = await axios.get(
-                        `${process.env.VUE_APP_BASE_API_URL}/avatars?telegram_id=${item.__data__.id}`, {
-                        headers: {
-                            Authorization: localStorage.getItem("auth_token")
-                        }
-                    });
-                    account.img = `data:image/jpeg;base64,${avatarResponse.data}`;
 
                     accounts.push(account);
                 }
