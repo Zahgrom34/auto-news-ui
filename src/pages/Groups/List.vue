@@ -36,7 +36,11 @@ export default {
     },
     methods: {
         fetchChannels() {
-            axios.get(`${process.env.VUE_APP_BASE_API_URL}/channels`).then(res => {
+            axios.get(`${process.env.VUE_APP_BASE_API_URL}/channels`, {
+                headers: {
+                    Authorization: localStorage.getItem('auth_token')
+                }
+            }).then(res => {
                 this.allChannels = res.data;
             })
         },
@@ -45,7 +49,11 @@ export default {
             this.actionsModalIsActive = !this.actionsModalIsActive;
         },
         deleteChannel() {
-            axios.delete(`${process.env.VUE_APP_BASE_API_URL}/channels/${this.selectedChannel.id}`).then(res => {
+            axios.delete(`${process.env.VUE_APP_BASE_API_URL}/channels/${this.selectedChannel.id}`, {
+                headers: {
+                    Authorization: localStorage.getItem('auth_token')
+                }
+            }).then(res => {
                 this.fetchChannels();
             })
         }

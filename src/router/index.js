@@ -27,8 +27,9 @@ router.beforeEach((to, from, next) => {
             localStorage.removeItem("auth_token");
         }
         if (to.path !== "/login") {
-            return next({ path: "/login" });
+            next({ path: "/login" });
         }
+        return next();
     });
 
 })
