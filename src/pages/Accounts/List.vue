@@ -80,7 +80,16 @@ export default {
       } catch (error) {
         console.error('Failed to make account main:', error);
       }
-    }
+    },
+    async checkSessionValidity(sessionId) {
+        try {
+            const response = await axios.get(`${process.env.VUE_APP_BASE_API_URL}/check_invalid?session_id=${sessionId}`);
+            return response.data.valid;  // Assuming the response contains a 'valid' field
+        } catch (error) {
+            console.error(`Error checking session validity: ${error}`);
+            return false;
+        }
+    },
   },
   data() {
     return {
