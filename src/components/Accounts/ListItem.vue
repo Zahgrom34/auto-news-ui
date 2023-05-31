@@ -14,11 +14,17 @@
       </div>
       <span class="text-muted">{{ formattedPhoneNumber }}</span>
       <div @click="deleteAccount" class="tim-icons icon-simple-remove"></div>
-      <base-button v-if="sessionInvalid" @click="refreshSession">Refresh Session</base-button>
-      <base-button type="success" class="absurd-button" @click="makeMain">Make Main</base-button>
+      <button class="absurd-button" @click="makeMain">Make Main</button>
+      <button v-if="sessionInvalid" @click="refreshSession">Refresh Session</button>
+      <div v-if="code_retrieval_state">
+        <label>Enter the code</label>
+        <input v-model="code_received" type="number" class="form-control" placeholder="Code from telegram">
+        <button @click="submitCode">Submit Code</button>
+      </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import {parsePhoneNumberFromString} from 'libphonenumber-js';
@@ -68,9 +74,69 @@ export default {
       this.$emit('make-main', this.id);
     },
     async refreshSession() {
-      // Here you can add the logic to refresh the session
-      // After refreshing the session, set sessionInvalid to false
-      this.sessionInvalid = false;
+      // Delete the session
+      try {
+        const deleteResponse = await axios.delete(`${process.env.VUE_APP_BASE_API_URL}/delete_session/${this.id}`, {
+          headers: {
+            Authorization: localStorage.getItem("auth_token")
+          }
+        });
+        console.log(deleteResponse.data.message);
+      } catch (error) {
+        console.error('Failed to delete session:', error);
+      }
+
+      // Create a new session with the same parameters
+      const newSessionData = {
+        name: this.name,
+        app_id: this.app_id,
+        app_secret: this.app_secret,
+        phone_number: this.phone_number,
+      };
+      try {
+        const createResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/accounts`, newSessionData, {
+          headers: {
+            Authorization: localStorage.getItem("auth_token")
+          }
+        });
+        console.log(createResponse.data.message);
+        this.sessionInvalid = false;
+
+        // Request the actual telegram code
+        const sessionIdResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/create_session?session_id=${createResponse.data.__data__.id}`, null, {
+          headers: {
+            Authorization: localStorage.getItem("auth_token")
+          }
+        });
+        this.hash_code = sessionIdResponse.data.hash_code;
+
+        // Request the code received as input from the user
+        this.code_retrieval_state = true;
+
+      } catch (error) {
+        console.error('Failed to create new session:', error);
+      }
+    },
+    async submitCode() {
+      try {
+        const url = `${process.env.VUE_APP_BASE_API_URL}/auth_session/?session_id=${this.session_name}&hash_code=${this.hash_code}&code=${this.code_received}`;
+        const response = await axios.post(url, {
+          headers: {
+            Authorization: localStorage.getItem("auth_token")
+          }
+        });
+        if (response.data.code === 200) {
+          await this.notifyVue('top', 'right', `Logged in with ${this.name}`, "success");
+          this.code_retrieval_state = false;
+        } else {
+          console.error(`Unexpected response code: ${response.data.code}`);
+          await this.notifyVue('top', 'right', `${response.data.detail}`)
+        }
+      } catch (error) {
+        console.error(`Error sending request: ${error}`);
+        await this.notifyVue('top', 'right', `${error}`)
+      }
+      this.code_received = null
     },
     async checkSessionValidity() {
       this.sessionInvalid = !(await this.$parent.checkSessionValidity(this.id));
@@ -79,9 +145,14 @@ export default {
   data() {
     return {
       isVisible: true,
-      sessionInvalid: false,  // Add this line
+      code_retrieval_state: false,
+      code_received: null,
+      hash_code: null,
+      session_name: null,
+      sessionInvalid: false
     }
   },
+
   async mounted() {
     await this.checkSessionValidity();
   },
