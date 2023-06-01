@@ -15,9 +15,16 @@
       <span class="text-muted">{{ formattedPhoneNumber }}</span>
       <div @click="deleteAccount" class="tim-icons icon-simple-remove"></div>
       <button class="absurd-button" @click="makeMain">Make Main</button>
+      <button v-if="sessionInvalid" @click="refreshSession">Refresh Session</button>
+      <div v-if="code_retrieval_state">
+        <label>Enter the code</label>
+        <input v-model="code_received" type="number" class="form-control" placeholder="Code from telegram">
+        <button @click="submitCode">Submit Code</button>
+      </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import {parsePhoneNumberFromString} from 'libphonenumber-js';
@@ -52,9 +59,9 @@ export default {
     async deleteAccount() {
       try {
         const response = await axios.delete(`${process.env.VUE_APP_BASE_API_URL}/delete_session/${this.id}`, {
-            headers: {
-                Authorization: localStorage.getItem("auth_token")
-            }
+          headers: {
+            Authorization: localStorage.getItem("auth_token")
+          }
         });
         console.log(response.data.message);
         this.isVisible = false
@@ -66,12 +73,64 @@ export default {
     makeMain() {
       this.$emit('make-main', this.id);
     },
+    async refreshSession() {
+      // Delete the session
+      try {
+        // Request the actual telegram code
+        const sessionIdResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/create_session?session_id=${this.id}`, null, {
+          headers: {
+            Authorization: localStorage.getItem("auth_token")
+          }
+        });
+        this.hash_code = sessionIdResponse.data.hash_code;
+
+        // Request the code received as input from the user
+        this.code_retrieval_state = true;
+
+      } catch (error) {
+        console.error('Failed to create new session:', error);
+      }
+    },
+    async submitCode() {
+      try {
+        const url = `${process.env.VUE_APP_BASE_API_URL}/auth_session/?session_id=${this.session_name}&hash_code=${this.hash_code}&code=${this.code_received}`;
+        const response = await axios.post(url, {
+          headers: {
+            Authorization: localStorage.getItem("auth_token")
+          }
+        });
+        if (response.data.code === 200) {
+          await this.notifyVue('top', 'right', `Logged in with ${this.name}`, "success");
+          this.code_retrieval_state = false;
+        } else {
+          console.error(`Unexpected response code: ${response.data.code}`);
+          await this.notifyVue('top', 'right', `${response.data.detail}`)
+        }
+      } catch (error) {
+        console.error(`Error sending request: ${error}`);
+        await this.notifyVue('top', 'right', `${error}`)
+      }
+      this.code_received = null
+    },
+    async checkSessionValidity() {
+      this.sessionInvalid = !(await this.$parent.checkSessionValidity(this.id));
+    },
   },
   data() {
     return {
-      isVisible: true
+      isVisible: true,
+      code_retrieval_state: false,
+      code_received: null,
+      hash_code: null,
+      session_name: null,
+      sessionInvalid: false
     }
   },
+
+  async mounted() {
+    await this.checkSessionValidity();
+  },
+
 }
 </script>
 
@@ -80,33 +139,8 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 .list-item {
   position: relative;
 }
-//
-//.absurd-button {
-//  display: inline-block;
-//  padding: 20px 40px;
-//  background-color: #007BFF;
-//  color: white;
-//  text-align: center;
-//  text-decoration: none;
-//  font-size: 20px;
-//  transition: transform 0.3s;
-//  border: 3px solid #000000; /* Add a border */
-//  cursor: pointer;
-//  /* Transform the button into a parallelogram */
-//  transform: skew(20deg);
-//  /* Make the button cover half of the list item */
-//  position: absolute;
-//  top: 25%;
-//  left: 25%;
-//  width: 50%;
-//  height: 50%;
-//  z-index: 9999;
-//}
-//
-//.absurd-button:hover {
-//  background-color: #0056b3;
-//}
 </style>
