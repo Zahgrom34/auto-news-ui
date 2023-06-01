@@ -92,6 +92,7 @@ export default {
                             Authorization: localStorage.getItem("auth_token")
                         }
                     });
+                    console.log(response.data)
                     this.session_name = response.data.__data__.id; // Use the id from the response data as the session name
                     this.code_retrieval_state = true;
 

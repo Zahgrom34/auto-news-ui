@@ -76,34 +76,8 @@ export default {
     async refreshSession() {
       // Delete the session
       try {
-        const deleteResponse = await axios.delete(`${process.env.VUE_APP_BASE_API_URL}/delete_session/${this.id}`, {
-          headers: {
-            Authorization: localStorage.getItem("auth_token")
-          }
-        });
-        console.log(deleteResponse.data.message);
-      } catch (error) {
-        console.error('Failed to delete session:', error);
-      }
-
-      // Create a new session with the same parameters
-      const newSessionData = {
-        name: this.name,
-        app_id: this.app_id,
-        app_secret: this.app_secret,
-        phone_number: this.phone_number,
-      };
-      try {
-        const createResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/accounts`, newSessionData, {
-          headers: {
-            Authorization: localStorage.getItem("auth_token")
-          }
-        });
-        console.log(createResponse.data.message);
-        this.sessionInvalid = false;
-
         // Request the actual telegram code
-        const sessionIdResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/create_session?session_id=${createResponse.data.__data__.id}`, null, {
+        const sessionIdResponse = await axios.post(`${process.env.VUE_APP_BASE_API_URL}/create_session?session_id=${this.id}`, null, {
           headers: {
             Authorization: localStorage.getItem("auth_token")
           }
